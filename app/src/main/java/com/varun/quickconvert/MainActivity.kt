@@ -17,9 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.varun.quickconvert.ui.theme.QuickConvertTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,15 +32,45 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             QuickConvertTheme {
-                HomeScreen()
+                // The AppNavigation composable now controls the whole app's screen flow
+                AppNavigation()
             }
         }
     }
 }
 
+// -- This composable will manage all screens ---
+@Composable
+fun AppNavigation() {
+    val navController = rememberNavController() // Creates a controller to manage navigation
+    NavHost(navController = navController, startDestination = "home") {
+        // Defines the "home" screen route
+        composable("home") {
+            HomeScreen(navController = navController)
+        }
+        // Defines the "temperature" screen route
+        composable("temperature") {
+            TemperatureScreen() // Placeholder screen
+        }
+        // Defines the "speed" screen route
+        composable("speed") {
+            SpeedScreen() // Placeholder screen
+        }
+        // Defines the "currency" screen route
+        composable("currency") {
+            CurrencyScreen() // Placeholder screen
+        }
+        // Defines the "calculator" screen route
+        composable("calculator") {
+            CalculatorScreen() // Placeholder screen
+        }
+    }
+}
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -61,13 +96,15 @@ fun HomeScreen() {
                 CategoryCard(
                     title = "Currency",
                     icon = Icons.Default.CurrencyExchange,
-                    onClick = { /* TODO */ },
+                    // This now navigates to the "currency" screen
+                    onClick = { navController.navigate("currency") },
                     modifier = Modifier.weight(1f)
                 )
                 CategoryCard(
                     title = "Temperature",
                     icon = Icons.Default.Thermostat,
-                    onClick = { /* TODO */ },
+                    // This now navigates to the "temperature" screen
+                    onClick = { navController.navigate("temperature") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -77,13 +114,13 @@ fun HomeScreen() {
                 CategoryCard(
                     title = "Speed",
                     icon = Icons.Default.Speed,
-                    onClick = { /* TODO */ },
+                    onClick = { navController.navigate("speed") },
                     modifier = Modifier.weight(1f)
                 )
                 CategoryCard(
                     title = "Calculator",
                     icon = Icons.Default.Calculate,
-                    onClick = { /* TODO */ },
+                    onClick = { navController.navigate("calculator") },
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -125,10 +162,37 @@ fun CategoryCard(
     }
 }
 
+@Composable
+fun TemperatureScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Temperature Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
+    }
+}
+@Composable
+fun SpeedScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Speed Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
+    }
+}
+@Composable
+fun CurrencyScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Currency Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
+    }
+}
+@Composable
+fun CalculatorScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Calculator Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
+    }
+}
+
+
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
+    // We pass a "fake" NavController that does nothing for the preview to work
     QuickConvertTheme {
-        HomeScreen()
+        HomeScreen(navController = rememberNavController())
     }
 }
