@@ -32,7 +32,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             QuickConvertTheme {
-                // The AppNavigation composable now controls the whole app's screen flow
                 AppNavigation()
             }
         }
@@ -61,9 +60,7 @@ fun AppNavigation() {
             CurrencyScreen() // Placeholder screen
         }
         // Defines the "calculator" screen route
-        composable("calculator") {
-            CalculatorScreen() // Placeholder screen
-        }
+        composable("calculator") { CalculatorScreen(navController = navController) }
     }
 }
 
