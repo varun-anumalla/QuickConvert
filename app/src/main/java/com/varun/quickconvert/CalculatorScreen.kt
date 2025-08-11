@@ -1,7 +1,9 @@
 package com.varun.quickconvert
 
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,10 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
@@ -20,73 +23,69 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
-// Define our Neumorphic colors
-val NeumorphicBackgroundColor = Color(0xFFE0E5EC)
-val NeumorphicLightShadow = Color.White.copy(alpha = 0.8f)
-val NeumorphicDarkShadow = Color(0xFFA3B1C6).copy(alpha = 0.4f)
-
+// Define our final colors
+val ScreenBackgroundColor = Color(0xFFF0F0F3) // A soft, light gray background
+val OperatorButtonColor = Color(0xFFFF9F0A)   // A vibrant orange
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalculatorScreen(navController: NavController) {
-    val equationText = "4,900+15,910"
-    val resultText = "20,810"
+    val equationText = "22,000 + 510"
+    val resultText = "22,510"
 
     Scaffold(
-        // Set the background of the whole screen to our base color
-        containerColor = NeumorphicBackgroundColor,
-        topBar = {
-            TopAppBar(
-                title = { Text("Calculator") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                // Make TopAppBar transparent to show the screen background
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-            )
-        }
+        containerColor = ScreenBackgroundColor,
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalAlignment = Alignment.End
         ) {
-            Spacer(modifier = Modifier.weight(1f))
-            Text(text = equationText, fontSize = 32.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(text = resultText, fontSize = 64.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-            Spacer(modifier = Modifier.height(16.dp))
+            // --- DISPLAY AREA ---
+            // This Box will take up all the available flexible space at the top
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                contentAlignment = Alignment.BottomEnd // Align text to the bottom-right
+            ) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(text = equationText, fontSize = 32.sp, color = Color.Gray)
+                    Text(text = resultText, fontSize = 72.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                }
+            }
 
-            val buttonSpacing = 12.dp // Increased spacing for a better look
-            Column(verticalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                val operatorColor = Color(0xFFFF9500) // A nice orange for operators
-
+            // --- BUTTON GRID ---
+            // This Column will sit at the bottom and size itself based on its content
+            val buttonSpacing = 12.dp
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(buttonSpacing)
+            ) {
+                // NOTE: The modifier = Modifier.weight(1f) has been REMOVED from the Rows
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                    CalculatorButton(symbol = "AC", modifier = Modifier.weight(1f))
-                    CalculatorButton(symbol = "%", modifier = Modifier.weight(1f))
-                    CalculatorButton(symbol = "⌫", modifier = Modifier.weight(1f))
-                    CalculatorButton(symbol = "÷", color = operatorColor, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "AC", color = MaterialTheme.colorScheme.secondaryContainer, textColor = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "%", color = MaterialTheme.colorScheme.secondaryContainer, textColor = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "⌫", color = MaterialTheme.colorScheme.secondaryContainer, textColor = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "÷", color = OperatorButtonColor, textColor = Color.White, modifier = Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
                     CalculatorButton(symbol = "7", modifier = Modifier.weight(1f))
                     CalculatorButton(symbol = "8", modifier = Modifier.weight(1f))
                     CalculatorButton(symbol = "9", modifier = Modifier.weight(1f))
-                    CalculatorButton(symbol = "×", color = operatorColor, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "×", color = OperatorButtonColor, textColor = Color.White, modifier = Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
                     CalculatorButton(symbol = "4", modifier = Modifier.weight(1f))
                     CalculatorButton(symbol = "5", modifier = Modifier.weight(1f))
                     CalculatorButton(symbol = "6", modifier = Modifier.weight(1f))
-                    CalculatorButton(symbol = "-", color = operatorColor, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "-", color = OperatorButtonColor, textColor = Color.White, modifier = Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
                     CalculatorButton(symbol = "1", modifier = Modifier.weight(1f))
                     CalculatorButton(symbol = "2", modifier = Modifier.weight(1f))
                     CalculatorButton(symbol = "3", modifier = Modifier.weight(1f))
-                    CalculatorButton(symbol = "+", color = operatorColor, modifier = Modifier.weight(1f))
+                    CalculatorButton(symbol = "+", color = OperatorButtonColor, textColor = Color.White, modifier = Modifier.weight(1f))
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
                     CalculatorButton(symbol = "0", modifier = Modifier.weight(1f))
@@ -94,7 +93,8 @@ fun CalculatorScreen(navController: NavController) {
                     CalculatorButton(
                         symbol = "=",
                         modifier = Modifier.weight(2f),
-                        color = operatorColor,
+                        color = OperatorButtonColor,
+                        textColor = Color.White,
                         shape = RoundedCornerShape(50.dp)
                     )
                 }
@@ -103,43 +103,37 @@ fun CalculatorScreen(navController: NavController) {
     }
 }
 
-
-// --- This composable will create a 3D NEUMORPHIC BUTTON ---
 @Composable
 fun CalculatorButton(
     symbol: String,
     modifier: Modifier = Modifier,
-    color: Color = NeumorphicBackgroundColor, // Button color matches background
+    color: Color = Color.White,
+    textColor: Color = Color.Black,
     shape: Shape = CircleShape,
     onClick: () -> Unit = {}
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(targetValue = if (isPressed) 0.95f else 1f, label = "scale")
+
+    Card(
         modifier = modifier
-            // The Dark Shadow (bottom-right)
-            .shadow(
-                elevation = 8.dp,
-                shape = shape,
-                spotColor = NeumorphicDarkShadow
-            )
-            // The Light Shadow (top-left)
-            .shadow(
-                elevation = 8.dp,
-                shape = shape,
-                spotColor = NeumorphicLightShadow
-            )
-            .clip(shape)
-            .background(color)
-            .clickable(onClick = onClick)
+            .scale(scale)
             .aspectRatio(if (shape == CircleShape) 1f else 2f)
-            .padding(8.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = color),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
-        Text(
-            text = symbol,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Medium,
-            // Use a dark color for text on light buttons
-            color = if (color == NeumorphicBackgroundColor) Color.DarkGray else Color.White
-        )
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text(text = symbol, fontSize = 32.sp, fontWeight = FontWeight.Bold, color = textColor)
+        }
     }
 }
