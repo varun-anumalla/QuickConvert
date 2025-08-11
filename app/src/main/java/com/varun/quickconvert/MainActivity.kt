@@ -59,7 +59,7 @@ fun AppNavigation() {
         composable("currency") {
             CurrencyScreen() // Placeholder screen
         }
-        // Defines the "calculator" screen route
+        /* this Defines the "calculator" screen route */
         composable("calculator") { CalculatorScreen(navController = navController) }
     }
 }
@@ -158,7 +158,7 @@ fun CategoryCard(
         }
     }
 }
-
+// --- ALL PLACEHOLDER SCREENS ---
 @Composable
 fun TemperatureScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -188,7 +188,6 @@ fun CalculatorScreen() {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    // We pass a "fake" NavController that does nothing for the preview to work
     QuickConvertTheme {
         HomeScreen(navController = rememberNavController())
     }
