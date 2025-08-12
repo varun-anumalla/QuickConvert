@@ -17,7 +17,7 @@ data class TemperatureUiState(
     val toValue: String = "",
     val fromUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
     val toUnit: TemperatureUnit = TemperatureUnit.FAHRENHEIT,
-    val isFromFieldActive: Boolean = true // Tracks which field is being edited
+    val isFromFieldActive: Boolean = true
 )
 
 sealed interface TemperatureEvent {
@@ -108,6 +108,10 @@ class TemperatureViewModel : ViewModel() {
         recalculate()
     }
 
+    /**
+     * the core logic for all temperature conversions.
+     * It converts the source value to Kelvin first, then from Kelvin to the target unit.
+     */
     private fun recalculate() {
         val state = _uiState.value
         val (valueToConvert, sourceUnit, targetUnit) = if (state.isFromFieldActive) {
@@ -118,19 +122,28 @@ class TemperatureViewModel : ViewModel() {
 
         val number = valueToConvert.toDoubleOrNull()
 
+        // If the input is not a valid number, clear the other field.
         if (number == null) {
             if (state.isFromFieldActive) _uiState.update { it.copy(toValue = "") }
             else _uiState.update { it.copy(fromValue = "") }
             return
         }
 
-        // for now i only convert C <-> F
-        val convertedValue = when {
-            sourceUnit == TemperatureUnit.CELSIUS && targetUnit == TemperatureUnit.FAHRENHEIT -> (number * 9 / 5) + 32
-            sourceUnit == TemperatureUnit.FAHRENHEIT && targetUnit == TemperatureUnit.CELSIUS -> (number - 32) * 5 / 9
-            else -> number // Placeholder for other conversions
+        // 1. Convert the input value to our base unit (Kelvin).
+        val valueInKelvin = when (sourceUnit) {
+            TemperatureUnit.CELSIUS -> number + 273.15
+            TemperatureUnit.FAHRENHEIT -> (number - 32) * 5 / 9 + 273.15
+            TemperatureUnit.KELVIN -> number
         }
 
+        // 2. Convert from Kelvin to the target unit.
+        val convertedValue = when (targetUnit) {
+            TemperatureUnit.CELSIUS -> valueInKelvin - 273.15
+            TemperatureUnit.FAHRENHEIT -> (valueInKelvin - 273.15) * 9 / 5 + 32
+            TemperatureUnit.KELVIN -> valueInKelvin
+        }
+
+        // 3. Update the correct field with the formatted result.
         if (state.isFromFieldActive) {
             _uiState.update { it.copy(toValue = decimalFormat.format(convertedValue)) }
         } else {
