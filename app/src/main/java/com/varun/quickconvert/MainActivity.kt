@@ -49,7 +49,7 @@ fun AppNavigation() {
         }
         // Defines the "temperature" screen route
         composable("temperature") {
-            TemperatureScreen() // Placeholder screen
+            TemperatureScreen(navController = navController)
         }
         // Defines the "speed" screen route
         composable("speed") {
@@ -159,12 +159,7 @@ fun CategoryCard(
     }
 }
 // --- ALL PLACEHOLDER SCREENS ---
-@Composable
-fun TemperatureScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Temperature Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
-    }
-}
+
 @Composable
 fun SpeedScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -177,12 +172,7 @@ fun CurrencyScreen() {
         Text("Currency Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
     }
 }
-@Composable
-fun CalculatorScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Calculator Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
-    }
-}
+
 
 
 @Preview(showBackground = true)
