@@ -53,7 +53,7 @@ fun AppNavigation() {
         }
         // Defines the "speed" screen route
         composable("speed") {
-            SpeedScreen() // Placeholder screen
+            SpeedScreen(navController = navController)
         }
         // Defines the "currency" screen route
         composable("currency") {
@@ -160,12 +160,6 @@ fun CategoryCard(
 }
 // --- ALL PLACEHOLDER SCREENS ---
 
-@Composable
-fun SpeedScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Speed Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
-    }
-}
 @Composable
 fun CurrencyScreen() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
