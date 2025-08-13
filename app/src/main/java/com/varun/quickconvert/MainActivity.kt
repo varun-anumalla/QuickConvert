@@ -57,7 +57,7 @@ fun AppNavigation() {
         }
         // Defines the "currency" screen route
         composable("currency") {
-            CurrencyScreen() // Placeholder screen
+            CurrencyScreen(navController = navController)
         }
         /* this Defines the "calculator" screen route */
         composable("calculator") { CalculatorScreen(navController = navController) }
@@ -160,12 +160,6 @@ fun CategoryCard(
 }
 // --- ALL PLACEHOLDER SCREENS ---
 
-@Composable
-fun CurrencyScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Currency Screen", fontSize = 24.sp, textAlign = TextAlign.Center)
-    }
-}
 
 
 
