@@ -24,12 +24,10 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 // Consistent color scheme with other screens
@@ -37,28 +35,13 @@ private val CurrencyScreenBackgroundColor = Color(0xFFF0F0F3)
 private val CurrencyOperatorButtonColor = Color(0xFFFF9F0A)
 private val CurrencyDisplayCardBackgroundColor = Color(0xFFE8E8E8)
 
-// Placeholder Data - This would be replaced by your ViewModel
-data class Currency(val code: String, val name: String)
-val sampleCurrencies = listOf(
-    Currency("USD", "United States Dollar"),
-    Currency("EUR", "Euro"),
-    Currency("JPY", "Japanese Yen"),
-    Currency("GBP", "British Pound"),
-    Currency("INR", "Indian Rupee")
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CurrencyScreen(
     navController: NavController,
-    // viewModel: CurrencyViewModel = viewModel() // This would be your actual ViewModel
+    viewModel: CurrencyViewModel = viewModel()
 ) {
-    // val uiState by viewModel.uiState.collectAsState() // Placeholder for state
-    var fromValue by remember { mutableStateOf("") }
-    var toValue by remember { mutableStateOf("") }
-    var fromCurrency by remember { mutableStateOf(sampleCurrencies[0]) }
-    var toCurrency by remember { mutableStateOf(sampleCurrencies[4]) }
-    var isFromFieldActive by remember { mutableStateOf(true) }
+    val uiState by viewModel.uiState.collectAsState()
     var showFromMenu by remember { mutableStateOf(false) }
     var showToMenu by remember { mutableStateOf(false) }
 
@@ -81,7 +64,6 @@ fun CurrencyScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            //--- DISPLAY SECTION ---
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,90 +71,92 @@ fun CurrencyScreen(
             ) {
                 Box {
                     CurrencyConversionDisplay(
-                        currency = fromCurrency,
-                        value = fromValue,
-                        isActive = isFromFieldActive,
-                        onFieldClick = { isFromFieldActive = true },
+                        currency = uiState.fromCurrency,
+                        value = uiState.fromValue,
+                        isActive = uiState.isFromFieldActive,
+                        isLoading = uiState.isLoading,
+                        onFieldClick = { viewModel.onEvent(CurrencyEvent.SetFromFieldActive) },
                         onUnitClick = { showFromMenu = true }
                     )
                     CurrencySelectionMenu(
                         expanded = showFromMenu,
                         onDismiss = { showFromMenu = false },
                         onCurrencySelected = { currency ->
-                            fromCurrency = currency
+                            viewModel.onEvent(CurrencyEvent.ChangeFromCurrency(currency))
                             showFromMenu = false
-                            // Trigger recalculation
                         },
-                        currencies = sampleCurrencies
+                        currencies = uiState.availableCurrencies
                     )
                 }
                 Spacer(Modifier.height(16.dp))
                 Box {
                     CurrencyConversionDisplay(
-                        currency = toCurrency,
-                        value = toValue,
-                        isActive = !isFromFieldActive,
-                        onFieldClick = { isFromFieldActive = false },
+                        currency = uiState.toCurrency,
+                        value = if (uiState.error != null) uiState.error!! else uiState.toValue,
+                        isActive = !uiState.isFromFieldActive,
+                        isLoading = false,
+                        onFieldClick = { },
                         onUnitClick = { showToMenu = true }
                     )
                     CurrencySelectionMenu(
                         expanded = showToMenu,
                         onDismiss = { showToMenu = false },
                         onCurrencySelected = { currency ->
-                            toCurrency = currency
+                            viewModel.onEvent(CurrencyEvent.ChangeToCurrency(currency))
                             showToMenu = false
-                            // Trigger recalculation
                         },
-                        currencies = sampleCurrencies
+                        currencies = uiState.availableCurrencies
                     )
                 }
             }
             Spacer(Modifier.weight(1f))
-            //--- KEYPAD SECTION ---
-            val buttonSpacing = 12.dp
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .height(IntrinsicSize.Max),
-                horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-            ) {
-                // Number grid
-                Column(
-                    modifier = Modifier.weight(3f),
-                    verticalArrangement = Arrangement.spacedBy(buttonSpacing)
-                ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                        CurrencyKeypadButton(symbol = "7", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = "8", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = "9", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                        CurrencyKeypadButton(symbol = "4", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = "5", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = "6", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                        CurrencyKeypadButton(symbol = "1", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = "2", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = "3", modifier = Modifier.weight(1f)) { /* Append Number */ }
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                        CurrencyKeypadButton(symbol = "0", modifier = Modifier.weight(2f), shape = RoundedCornerShape(50.dp)) { /* Append Number */ }
-                        CurrencyKeypadButton(symbol = ".", modifier = Modifier.weight(1f)) { /* Append Decimal */ }
-                    }
-                }
-                // Action buttons
-                Column(
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    verticalArrangement = Arrangement.spacedBy(buttonSpacing)
-                ) {
-                    CurrencyKeypadButton(symbol = "AC", modifier = Modifier.weight(1f), color = CurrencyOperatorButtonColor,
-                        textColor = Color.White, shape = RoundedCornerShape(50.dp)) { /* Clear */ }
-                    CurrencyKeypadIconButton(icon = Icons.AutoMirrored.Filled.Backspace, modifier = Modifier.weight(1f),
-                        color = CurrencyOperatorButtonColor, tint = Color.White, shape = RoundedCornerShape(50.dp)) { /* Backspace */ }
-                }
-            }
+            Keypad(onEvent = viewModel::onEvent)
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
+    val buttonSpacing = 12.dp
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
+    ) {
+        Column(
+            modifier = Modifier.weight(3f),
+            verticalArrangement = Arrangement.spacedBy(buttonSpacing)
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+                CurrencyKeypadButton(symbol = "7", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("7")) }
+                CurrencyKeypadButton(symbol = "8", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("8")) }
+                CurrencyKeypadButton(symbol = "9", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("9")) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+                CurrencyKeypadButton(symbol = "4", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("4")) }
+                CurrencyKeypadButton(symbol = "5", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("5")) }
+                CurrencyKeypadButton(symbol = "6", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("6")) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+                CurrencyKeypadButton(symbol = "1", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("1")) }
+                CurrencyKeypadButton(symbol = "2", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("2")) }
+                CurrencyKeypadButton(symbol = "3", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("3")) }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
+                CurrencyKeypadButton(symbol = "0", modifier = Modifier.weight(2f), shape = RoundedCornerShape(50.dp)) { onEvent(CurrencyEvent.NumberPressed("0")) }
+                CurrencyKeypadButton(symbol = ".", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.DecimalPressed) }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(buttonSpacing)
+        ) {
+            CurrencyKeypadButton(symbol = "AC", modifier = Modifier.weight(1f), color = CurrencyOperatorButtonColor, textColor = Color.White, shape = RoundedCornerShape(50.dp)) { onEvent(CurrencyEvent.ClearPressed) }
+            CurrencyKeypadIconButton(icon = Icons.AutoMirrored.Filled.Backspace, modifier = Modifier.weight(1f), color = CurrencyOperatorButtonColor, tint = Color.White, shape = RoundedCornerShape(50.dp)) { onEvent(CurrencyEvent.BackspacePressed) }
         }
     }
 }
@@ -182,6 +166,7 @@ private fun CurrencyConversionDisplay(
     currency: Currency,
     value: String,
     isActive: Boolean,
+    isLoading: Boolean,
     onFieldClick: () -> Unit,
     onUnitClick: () -> Unit
 ) {
@@ -220,23 +205,45 @@ private fun CurrencyConversionDisplay(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End
             ) {
-                // You can reuse the AutoResizeText from your other screens
-                Text(
-                    text = if (value.isEmpty()) "0" else value,
-                    style = TextStyle(
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.End
+                if (isLoading) {
+                    Text("Loading...", style = MaterialTheme.typography.headlineSmall, color = Color.Gray)
+                } else {
+                    Text(
+                        text = if (value.isEmpty()) "0" else value,
+                        style = TextStyle(
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.End
+                        ),
+                        maxLines = 1
                     )
-                )
+                }
                 if (isActive) {
                     Spacer(Modifier.width(4.dp))
-                    // You can reuse the BlinkingCursor from your other screens
-                    Box(modifier = Modifier.width(2.dp).height(40.dp).background(Color.DarkGray))
+                    BlinkingCursor()
                 }
             }
         }
     }
+}
+
+@Composable
+private fun BlinkingCursor() {
+    val infiniteTransition = rememberInfiniteTransition(label = "cursorBlink")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 500),
+            repeatMode = RepeatMode.Reverse
+        ), label = "cursorAlpha"
+    )
+    Box(
+        modifier = Modifier
+            .width(2.dp)
+            .height(40.dp)
+            .background(Color.DarkGray.copy(alpha = alpha))
+    )
 }
 
 @Composable
@@ -249,10 +256,14 @@ private fun CurrencySelectionMenu(
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
-        modifier = Modifier.background(CurrencyDisplayCardBackgroundColor, RoundedCornerShape(16.dp))
+        modifier = Modifier
+            .background(CurrencyDisplayCardBackgroundColor, RoundedCornerShape(16.dp))
+            .heightIn(max = 250.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
