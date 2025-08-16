@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
-// Consistent color scheme with other screens
 private val CurrencyScreenBackgroundColor = Color(0xFFF0F0F3)
 private val CurrencyOperatorButtonColor = Color(0xFFFF9F0A)
 private val CurrencyDisplayCardBackgroundColor = Color(0xFFE8E8E8)
@@ -55,7 +54,12 @@ fun CurrencyScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = CurrencyScreenBackgroundColor)
+                // FIXED: Enforcing a static light theme for the top bar
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = CurrencyScreenBackgroundColor,
+                    titleContentColor = Color.Black,
+                    navigationIconContentColor = Color.Black
+                )
             )
         }
     ) { paddingValues ->
@@ -196,9 +200,10 @@ private fun CurrencyConversionDisplay(
                 Text(
                     text = "${currency.code} - ${currency.name}",
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    color = Color.Black // Explicitly set text color
                 )
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Currency")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Currency", tint = Color.Black)
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -213,7 +218,8 @@ private fun CurrencyConversionDisplay(
                         style = TextStyle(
                             fontSize = 48.sp,
                             fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.End
+                            textAlign = TextAlign.End,
+                            color = Color.Black // Explicitly set text color
                         ),
                         maxLines = 1
                     )
@@ -267,15 +273,15 @@ private fun CurrencySelectionMenu(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Select Currency", style = MaterialTheme.typography.titleSmall)
+            Text("Select Currency", style = MaterialTheme.typography.titleSmall, color = Color.Black)
             IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
             }
         }
         HorizontalDivider()
         currencies.forEach { currency ->
             DropdownMenuItem(
-                text = { Text("${currency.code} - ${currency.name}") },
+                text = { Text("${currency.code} - ${currency.name}", color = Color.Black) },
                 onClick = { onCurrencySelected(currency) }
             )
         }

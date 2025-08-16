@@ -36,6 +36,7 @@ import androidx.navigation.NavController
 private val TempScreenBackgroundColor = Color(0xFFF0F0F3)
 private val TempOperatorButtonColor = Color(0xFFFF9F0A)
 private val TempDisplayCardBackgroundColor = Color(0xFFE8E8E8)
+private val StaticSecondaryButtonColor = Color(0xFFDCDAF0)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,7 +58,11 @@ fun TemperatureScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = TempScreenBackgroundColor)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = TempScreenBackgroundColor,
+                    titleContentColor = Color.Black,
+                    navigationIconContentColor = Color.Black
+                )
             )
         }
     ) { paddingValues ->
@@ -141,7 +146,7 @@ fun TemperatureScreen(
                     Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
                         TempKeypadButton(symbol = "0", modifier = Modifier.weight(1f)) { viewModel.onEvent(TemperatureEvent.NumberPressed("0")) }
                         TempKeypadButton(symbol = ".", modifier = Modifier.weight(1f)) { viewModel.onEvent(TemperatureEvent.DecimalPressed) }
-                        TempKeypadButton(symbol = "+/-", modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.secondaryContainer) { viewModel.onEvent(TemperatureEvent.ToggleSignPressed) }
+                        TempKeypadButton(symbol = "+/-", modifier = Modifier.weight(1f), color = StaticSecondaryButtonColor, textColor = Color.Black) { viewModel.onEvent(TemperatureEvent.ToggleSignPressed) }
                     }
                 }
                 Column(
@@ -192,9 +197,10 @@ private fun TempConversionDisplay(
             ) {
                 Text(
                     text = "${unit.displayName} (${unit.symbol})",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black // Explicitly set text color
                 )
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select unit")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select unit", tint = Color.Black)
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -206,7 +212,8 @@ private fun TempConversionDisplay(
                     style = TextStyle(
                         fontSize = 48.sp,
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.End,
+                        color = Color.Black // Explicitly set text color
                     )
                 )
                 if (isActive) {
@@ -230,24 +237,29 @@ private fun TempUnitSelectionMenu(
         modifier = Modifier.background(TempDisplayCardBackgroundColor, RoundedCornerShape(16.dp))
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Select unit", style = MaterialTheme.typography.titleSmall)
+            Text("Select unit", style = MaterialTheme.typography.titleSmall, color = Color.Black)
             IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
             }
         }
         HorizontalDivider()
         TemperatureUnit.entries.forEach { unit ->
             DropdownMenuItem(
-                text = { Text("${unit.displayName} (${unit.symbol})") },
+                text = { Text("${unit.displayName} (${unit.symbol})", color = Color.Black) },
                 onClick = { onUnitSelected(unit) }
             )
         }
     }
 }
+
+// NOTE: The rest of the file (Keypad buttons, BlinkingCursor, etc.) does not need any changes.
+// I am including them here so you can replace the entire file easily.
 
 @Composable
 private fun TempKeypadButton(
@@ -364,7 +376,7 @@ private fun TempAutoResizeText(
         }
         Text(
             text = text,
-            style = style.copy(fontSize = resizedFontSize),
+            style = style.copy(fontSize = resizedFontSize, color = Color.Black),
             maxLines = 1,
             softWrap = false
         )

@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
-// Colors specific to this screen
 private val SpeedScreenBackgroundColor = Color(0xFFF0F0F3)
 private val SpeedOperatorButtonColor = Color(0xFFFF9F0A)
 private val SpeedDisplayCardBackgroundColor = Color(0xFFE8E8E8)
@@ -60,7 +59,12 @@ fun SpeedScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SpeedScreenBackgroundColor)
+                // FIXED: Enforcing a static light theme for the top bar
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = SpeedScreenBackgroundColor,
+                    titleContentColor = Color.Black,
+                    navigationIconContentColor = Color.Black
+                )
             )
         }
     ) { paddingValues ->
@@ -112,7 +116,6 @@ fun SpeedScreen(
                 }
             }
 
-            // Flexible spacer to push keypad to the bottom
             Spacer(Modifier.weight(1f))
 
             // --- KEYPAD SECTION ---
@@ -157,7 +160,6 @@ fun SpeedScreen(
                     SpeedKeypadIconButton(icon = Icons.AutoMirrored.Filled.Backspace, modifier = Modifier.weight(1f), color = SpeedOperatorButtonColor, tint = Color.White, shape = RoundedCornerShape(50.dp)) { viewModel.onEvent(SpeedEvent.BackspacePressed) }
                 }
             }
-            // Fixed spacer for bottom padding
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -197,9 +199,10 @@ private fun SpeedConversionDisplay(
             ) {
                 Text(
                     text = "${unit.displayName} (${unit.symbol})",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Black // Explicitly set text color
                 )
-                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select unit")
+                Icon(Icons.Default.ArrowDropDown, contentDescription = "Select unit", tint = Color.Black)
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -211,7 +214,8 @@ private fun SpeedConversionDisplay(
                     style = TextStyle(
                         fontSize = 48.sp,
                         fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.End,
+                        color = Color.Black // Explicitly set text color
                     )
                 )
                 if (isActive) {
@@ -235,24 +239,28 @@ private fun SpeedUnitSelectionMenu(
         modifier = Modifier.background(SpeedDisplayCardBackgroundColor, RoundedCornerShape(16.dp))
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("Select unit", style = MaterialTheme.typography.titleSmall)
+            Text("Select unit", style = MaterialTheme.typography.titleSmall, color = Color.Black)
             IconButton(onClick = onDismiss, modifier = Modifier.size(24.dp)) {
-                Icon(Icons.Default.Close, contentDescription = "Close")
+                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.Black)
             }
         }
         HorizontalDivider()
         SpeedUnit.entries.forEach { unit ->
             DropdownMenuItem(
-                text = { Text("${unit.displayName} (${unit.symbol})") },
+                text = { Text("${unit.displayName} (${unit.symbol})", color = Color.Black) },
                 onClick = { onUnitSelected(unit) }
             )
         }
     }
 }
+
+// NOTE: The rest of the file (Keypad buttons, BlinkingCursor, etc.) does not need any changes.
 
 @Composable
 private fun SpeedKeypadButton(
@@ -369,7 +377,7 @@ private fun SpeedAutoResizeText(
         }
         Text(
             text = text,
-            style = style.copy(fontSize = resizedFontSize),
+            style = style.copy(fontSize = resizedFontSize, color = Color.Black),
             maxLines = 1,
             softWrap = false
         )

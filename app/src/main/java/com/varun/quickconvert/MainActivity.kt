@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,6 +25,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.varun.quickconvert.ui.theme.QuickConvertTheme
+
+import androidx.compose.ui.graphics.Color
+
+private val StaticPrimaryColor = Color(0xFF6650a4)
+private val StaticBackgroundColor = Color(0xFFF0F0F3)
+private val StaticTextColor = Color.DarkGray
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,53 +78,58 @@ fun HomeScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("Quick Convert") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    // Now using our defined static color
+                    containerColor = StaticPrimaryColor,
+                    titleContentColor = Color.White
                 )
             )
-        }
+        },
+        // Forcing the background to our static light gray color
+        containerColor = StaticBackgroundColor
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CategoryCard(
-                    title = "Currency",
-                    icon = Icons.Default.CurrencyExchange,
-                    // This now navigates to the "currency" screen
-                    onClick = { navController.navigate("currency") },
-                    modifier = Modifier.weight(1f)
-                )
-                CategoryCard(
-                    title = "Temperature",
-                    icon = Icons.Default.Thermostat,
-                    // This now navigates to the "temperature" screen
-                    onClick = { navController.navigate("temperature") },
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                CategoryCard(
-                    title = "Speed",
-                    icon = Icons.Default.Speed,
-                    onClick = { navController.navigate("speed") },
-                    modifier = Modifier.weight(1f)
-                )
-                CategoryCard(
-                    title = "Calculator",
-                    icon = Icons.Default.Calculate,
-                    onClick = { navController.navigate("calculator") },
-                    modifier = Modifier.weight(1f)
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CategoryCard(
+                        title = "Currency",
+                        icon = Icons.Default.CurrencyExchange,
+                        onClick = { navController.navigate("currency") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    CategoryCard(
+                        title = "Temperature",
+                        icon = Icons.Default.Thermostat,
+                        onClick = { navController.navigate("temperature") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CategoryCard(
+                        title = "Speed",
+                        icon = Icons.Default.Speed,
+                        onClick = { navController.navigate("speed") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    CategoryCard(
+                        title = "Calculator",
+                        icon = Icons.Default.Calculate,
+                        onClick = { navController.navigate("calculator") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
@@ -137,7 +147,8 @@ fun CategoryCard(
             .aspectRatio(1f)
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -147,13 +158,17 @@ fun CategoryCard(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(48.dp),
+                // Using our static text/icon color
+                tint = StaticTextColor.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = title,
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                // Using our static text/icon color
+                color = StaticTextColor.copy(alpha = 0.8f)
             )
         }
     }

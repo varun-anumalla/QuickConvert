@@ -32,6 +32,7 @@ import androidx.navigation.NavController
 val ScreenBackgroundColor = Color(0xFFF0F0F3) // A soft, light gray background
 val OperatorButtonColor = Color(0xFFFF9F0A)   // A vibrant orange
 val DisplayCardBackgroundColor = Color(0xFFE8E8E8) // A slightly darker gray for the display
+private val StaticSecondaryButtonColor = Color(0xFFDCDAF0)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -125,9 +126,9 @@ fun CalculatorScreen(
                 verticalArrangement = Arrangement.spacedBy(buttonSpacing)
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                    CalculatorButton(symbol = "AC", color = MaterialTheme.colorScheme.secondaryContainer, textColor = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Clear) })
-                    CalculatorButton(symbol = "%", color = MaterialTheme.colorScheme.secondaryContainer, textColor = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Percentage) })
-                    CalculatorButton(symbol = "⌫", color = MaterialTheme.colorScheme.secondaryContainer, textColor = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Backspace) })
+                    CalculatorButton(symbol = "AC", color = StaticSecondaryButtonColor, textColor = Color.Black, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Clear) })
+                    CalculatorButton(symbol = "%", color = StaticSecondaryButtonColor, textColor = Color.Black, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Percentage) })
+                    CalculatorButton(symbol = "⌫", color = StaticSecondaryButtonColor, textColor = Color.Black, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Backspace) })
                     CalculatorButton(symbol = "÷", color = OperatorButtonColor, textColor = Color.White, modifier = Modifier.weight(1f), onClick = { viewModel.onEvent(CalculatorEvent.Operator("÷")) })
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
