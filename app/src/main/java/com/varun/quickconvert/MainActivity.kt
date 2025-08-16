@@ -25,8 +25,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.varun.quickconvert.ui.theme.QuickConvertTheme
-
 import androidx.compose.ui.graphics.Color
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.scale
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
 
 private val StaticPrimaryColor = Color(0xFF6650a4)
 private val StaticBackgroundColor = Color(0xFFF0F0F3)
@@ -73,18 +80,19 @@ fun AppNavigation() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavController) {
+    // 1. Get a coroutine scope. This allows us to launch a coroutine from a composable.
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Quick Convert") },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    // Now using our defined static color
                     containerColor = StaticPrimaryColor,
                     titleContentColor = Color.White
                 )
             )
         },
-        // Forcing the background to our static light gray color
         containerColor = StaticBackgroundColor
     ) { paddingValues ->
         Box(
@@ -104,13 +112,26 @@ fun HomeScreen(navController: NavController) {
                     CategoryCard(
                         title = "Currency",
                         icon = Icons.Default.CurrencyExchange,
-                        onClick = { navController.navigate("currency") },
+                        // 2. Updated onClick logic
+                        onClick = {
+                            scope.launch {
+                                // A 150ms delay is just enough to see the animation
+                                kotlinx.coroutines.delay(150)
+                                navController.navigate("currency")
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     CategoryCard(
                         title = "Temperature",
                         icon = Icons.Default.Thermostat,
-                        onClick = { navController.navigate("temperature") },
+                        // 2. Updated onClick logic
+                        onClick = {
+                            scope.launch {
+                                kotlinx.coroutines.delay(150)
+                                navController.navigate("temperature")
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -120,13 +141,25 @@ fun HomeScreen(navController: NavController) {
                     CategoryCard(
                         title = "Speed",
                         icon = Icons.Default.Speed,
-                        onClick = { navController.navigate("speed") },
+                        // 2. Updated onClick logic
+                        onClick = {
+                            scope.launch {
+                                kotlinx.coroutines.delay(150)
+                                navController.navigate("speed")
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     CategoryCard(
                         title = "Calculator",
                         icon = Icons.Default.Calculate,
-                        onClick = { navController.navigate("calculator") },
+                        // 2. Updated onClick logic
+                        onClick = {
+                            scope.launch {
+                                kotlinx.coroutines.delay(150)
+                                navController.navigate("calculator")
+                            }
+                        },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -134,7 +167,6 @@ fun HomeScreen(navController: NavController) {
         }
     }
 }
-
 @Composable
 fun CategoryCard(
     title: String,
@@ -142,10 +174,25 @@ fun CategoryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // --- Animation Logic Start ---
+    // This is the same logic used in the CalculatorButton
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    // We'll scale down to 90% when pressed for a subtle but noticeable effect
+    val scale by animateFloatAsState(targetValue = if (isPressed) 0.8f else 1f, label = "scale")
+    // --- Animation Logic End ---
+
     Card(
         modifier = modifier
             .aspectRatio(1f)
-            .clickable(onClick = onClick),
+            // Apply the animated scale value to the card
+            .scale(scale)
+            // Updated clickable modifier to track press interactions
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null, // Disable the default ripple effect
+                onClick = onClick
+            ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
@@ -159,7 +206,6 @@ fun CategoryCard(
                 imageVector = icon,
                 contentDescription = title,
                 modifier = Modifier.size(48.dp),
-                // Using our static text/icon color
                 tint = StaticTextColor.copy(alpha = 0.8f)
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -167,7 +213,6 @@ fun CategoryCard(
                 text = title,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                // Using our static text/icon color
                 color = StaticTextColor.copy(alpha = 0.8f)
             )
         }
