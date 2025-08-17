@@ -11,7 +11,7 @@ A sleek and modern multi-tool application for Android, built entirely with **Jet
 
 **App Demo (GIF):**
 
-![App Demo GIF](URL_TO_YOUR_APP_DEMO.gif)
+<img src="https://github.com/varun-anumalla/QuickConvert/blob/master/QuickConvert_demo.gif?raw=true" width="200">
 
 ## 🌟 Features
 
