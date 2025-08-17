@@ -4,11 +4,10 @@ A sleek and modern multi-tool application for Android, built entirely with **Jet
 
 ## ✨ App Screenshots & Demo
 
-*(To add your screenshots: Take screenshots of your app, drag them into the GitHub editor here, and replace these placeholder links.)*
 
-| Home Screen | Calculator | Temperature Converter | Currency Converter |
-| :---: | :---: | :---: | :---: |
-| <img src="URL_TO_YOUR_HOME_SCREENSHOT.png" width="200"> | <img src="URL_TO_YOUR_CALCULATOR_SCREENSHOT.png" width="200"> | <img src="URL_TO_YOUR_TEMPERATURE_SCREENSHOT.png" width="200"> | <img src="URL_TO_YOUR_CURRENCY_SCREENSHOT.png" width="200"> |
+| Home Screen | Currency Conversion | Temperature Conversion | Calculator | Speed Conversion |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/a0cd0445-dbd9-457f-85ad-a7bfac4cc647" width="200"> | <img src="https://github.com/user-attachments/assets/9b85a279-9ac4-463c-ba68-ac5d26fba14e" width="200"> | <img src="https://github.com/user-attachments/assets/ae364087-875c-4b9f-b90c-cbf2cfb81592" width="200"> | <img src="https://github.com/user-attachments/assets/43328418-b86b-4408-b350-a7b094afe921" width="200"> | <img src="https://github.com/user-attachments/assets/fdf6cd63-b346-4266-ad01-c64daffb0380" width="200"> |
 
 **App Demo (GIF):**
 
