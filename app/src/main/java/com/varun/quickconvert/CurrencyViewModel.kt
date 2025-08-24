@@ -23,7 +23,6 @@ data class CurrencyUiState(
 
 // --- 2. User Events ---
 sealed interface CurrencyEvent {
-    // MODIFIED: Added context parameter to match SpeedEvent
     data class NumberPressed(val number: String, val context: Context) : CurrencyEvent
     object DecimalPressed : CurrencyEvent
     object ClearPressed : CurrencyEvent
@@ -48,7 +47,6 @@ class CurrencyViewModel : ViewModel() {
 
     fun onEvent(event: CurrencyEvent) {
         when (event) {
-            // MODIFIED: Pass the context to the appendNumber function
             is CurrencyEvent.NumberPressed -> appendNumber(event.number, event.context)
             is CurrencyEvent.DecimalPressed -> appendDecimal()
             is CurrencyEvent.ClearPressed -> clearActiveField()
@@ -98,13 +96,13 @@ class CurrencyViewModel : ViewModel() {
         _uiState.update { it.copy(toValue = decimalFormat.format(result)) }
     }
 
-    // MODIFIED: Added context parameter and Toast logic, exactly like in SpeedViewModel
+    //  checks for 10 digits and shows the correct message
     private fun appendNumber(number: String, context: Context) {
         val activeValue = if (_uiState.value.isFromFieldActive) _uiState.value.fromValue else ""
 
         val cleanValue = activeValue.replace(".", "")
-        if (cleanValue.length >= 12) {
-            Toast.makeText(context, "Max digits reached (12)", Toast.LENGTH_SHORT).show()
+        if (cleanValue.length >= 10) {
+            Toast.makeText(context, "Max digits reached (10)", Toast.LENGTH_SHORT).show() // <-- CHANGED TO 10
             return
         }
 

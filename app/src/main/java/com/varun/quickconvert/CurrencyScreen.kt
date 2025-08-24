@@ -26,7 +26,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -123,7 +125,6 @@ fun CurrencyScreen(
 
 @Composable
 private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
-    // MODIFIED: Get context here to pass with the event
     val context = LocalContext.current
     val buttonSpacing = 12.dp
     Row(
@@ -137,7 +138,6 @@ private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(buttonSpacing)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                // MODIFIED: Pass context with NumberPressed event
                 CurrencyKeypadButton(symbol = "7", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("7", context)) }
                 CurrencyKeypadButton(symbol = "8", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("8", context)) }
                 CurrencyKeypadButton(symbol = "9", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("9", context)) }
@@ -168,8 +168,6 @@ private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
         }
     }
 }
-
-// --- All other composables below this line remain the same ---
 
 @Composable
 private fun CurrencyConversionDisplay(
@@ -219,15 +217,14 @@ private fun CurrencyConversionDisplay(
                 if (isLoading) {
                     Text("Loading...", style = MaterialTheme.typography.headlineSmall, color = Color.Gray)
                 } else {
-                    Text(
+                    CurrencyAutoResizeText(
                         text = if (value.isEmpty()) "0" else value,
                         style = TextStyle(
                             fontSize = 48.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.End,
                             color = Color.Black
-                        ),
-                        maxLines = 1
+                        )
                     )
                 }
                 if (isActive) {
@@ -236,6 +233,36 @@ private fun CurrencyConversionDisplay(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun CurrencyAutoResizeText(
+    text: String,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+    minFontSize: TextUnit = 12.sp
+) {
+    val textMeasurer = rememberTextMeasurer()
+    var resizedFontSize by remember(text) { mutableStateOf(style.fontSize) }
+
+    BoxWithConstraints(modifier = modifier) {
+        LaunchedEffect(text, constraints.maxWidth) {
+            var currentFontSize = style.fontSize
+            var textLayoutResult = textMeasurer.measure(text, style.copy(fontSize = currentFontSize))
+            while (textLayoutResult.size.width > constraints.maxWidth && currentFontSize > minFontSize) {
+                currentFontSize *= 0.95f
+                textLayoutResult = textMeasurer.measure(text, style.copy(fontSize = currentFontSize))
+            }
+            resizedFontSize = currentFontSize
+        }
+        Text(
+            text = text,
+            style = style.copy(fontSize = resizedFontSize, color = Color.Black),
+            maxLines = 1,
+            softWrap = false
+        )
     }
 }
 
