@@ -1,5 +1,7 @@
 package com.varun.quickconvert
 
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
@@ -20,9 +22,9 @@ data class CurrencyUiState(
 )
 
 // --- 2. User Events ---
-// Defines all actions the user can perform.
 sealed interface CurrencyEvent {
-    data class NumberPressed(val number: String) : CurrencyEvent
+    // MODIFIED: Added context parameter to match SpeedEvent
+    data class NumberPressed(val number: String, val context: Context) : CurrencyEvent
     object DecimalPressed : CurrencyEvent
     object ClearPressed : CurrencyEvent
     object BackspacePressed : CurrencyEvent
@@ -38,19 +40,16 @@ class CurrencyViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     private val decimalFormat = DecimalFormat("#.##")
-
-// API key
     private val apiKey = "a3e424e47716944f2ccc69a5"
 
     init {
-        // Fetch rates as soon as the ViewModel is created
         fetchRates()
     }
 
-    // Main entry point for all UI events
     fun onEvent(event: CurrencyEvent) {
         when (event) {
-            is CurrencyEvent.NumberPressed -> appendNumber(event.number)
+            // MODIFIED: Pass the context to the appendNumber function
+            is CurrencyEvent.NumberPressed -> appendNumber(event.number, event.context)
             is CurrencyEvent.DecimalPressed -> appendDecimal()
             is CurrencyEvent.ClearPressed -> clearActiveField()
             is CurrencyEvent.BackspacePressed -> performBackspace()
@@ -58,11 +57,11 @@ class CurrencyViewModel : ViewModel() {
             is CurrencyEvent.SetToFieldActive -> _uiState.update { it.copy(isFromFieldActive = false) }
             is CurrencyEvent.ChangeFromCurrency -> {
                 _uiState.update { it.copy(fromCurrency = event.currency) }
-                fetchRates() // Fetch new rates for the new base currency
+                fetchRates()
             }
             is CurrencyEvent.ChangeToCurrency -> {
                 _uiState.update { it.copy(toCurrency = event.currency) }
-                recalculate() // No need to fetch, just recalculate with existing rates
+                recalculate()
             }
         }
     }
@@ -76,7 +75,7 @@ class CurrencyViewModel : ViewModel() {
                 val response = RetrofitClient.apiService.getLatestRates(apiKey, baseCurrency)
                 if (response.result == "success") {
                     _uiState.update { it.copy(rates = response.rates, isLoading = false) }
-                    recalculate() // Recalculate with the new rates
+                    recalculate()
                 } else {
                     _uiState.update { it.copy(error = "API Error", isLoading = false) }
                 }
@@ -99,9 +98,15 @@ class CurrencyViewModel : ViewModel() {
         _uiState.update { it.copy(toValue = decimalFormat.format(result)) }
     }
 
-    private fun appendNumber(number: String) {
+    // MODIFIED: Added context parameter and Toast logic, exactly like in SpeedViewModel
+    private fun appendNumber(number: String, context: Context) {
         val activeValue = if (_uiState.value.isFromFieldActive) _uiState.value.fromValue else ""
-        if (activeValue.length >= 12) return // Limit input length
+
+        val cleanValue = activeValue.replace(".", "")
+        if (cleanValue.length >= 12) {
+            Toast.makeText(context, "Max digits reached (12)", Toast.LENGTH_SHORT).show()
+            return
+        }
 
         val newValue = if (activeValue == "0") number else activeValue + number
         updateStateWithValue(newValue)

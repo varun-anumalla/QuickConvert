@@ -1,5 +1,6 @@
 package com.varun.quickconvert
 
+import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -54,7 +56,6 @@ fun CurrencyScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                // FIXED: Enforcing a static light theme for the top bar
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = CurrencyScreenBackgroundColor,
                     titleContentColor = Color.Black,
@@ -122,6 +123,8 @@ fun CurrencyScreen(
 
 @Composable
 private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
+    // MODIFIED: Get context here to pass with the event
+    val context = LocalContext.current
     val buttonSpacing = 12.dp
     Row(
         modifier = Modifier
@@ -134,22 +137,23 @@ private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
             verticalArrangement = Arrangement.spacedBy(buttonSpacing)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                CurrencyKeypadButton(symbol = "7", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("7")) }
-                CurrencyKeypadButton(symbol = "8", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("8")) }
-                CurrencyKeypadButton(symbol = "9", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("9")) }
+                // MODIFIED: Pass context with NumberPressed event
+                CurrencyKeypadButton(symbol = "7", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("7", context)) }
+                CurrencyKeypadButton(symbol = "8", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("8", context)) }
+                CurrencyKeypadButton(symbol = "9", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("9", context)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                CurrencyKeypadButton(symbol = "4", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("4")) }
-                CurrencyKeypadButton(symbol = "5", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("5")) }
-                CurrencyKeypadButton(symbol = "6", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("6")) }
+                CurrencyKeypadButton(symbol = "4", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("4", context)) }
+                CurrencyKeypadButton(symbol = "5", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("5", context)) }
+                CurrencyKeypadButton(symbol = "6", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("6", context)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                CurrencyKeypadButton(symbol = "1", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("1")) }
-                CurrencyKeypadButton(symbol = "2", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("2")) }
-                CurrencyKeypadButton(symbol = "3", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("3")) }
+                CurrencyKeypadButton(symbol = "1", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("1", context)) }
+                CurrencyKeypadButton(symbol = "2", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("2", context)) }
+                CurrencyKeypadButton(symbol = "3", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.NumberPressed("3", context)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(buttonSpacing)) {
-                CurrencyKeypadButton(symbol = "0", modifier = Modifier.weight(2f), shape = RoundedCornerShape(50.dp)) { onEvent(CurrencyEvent.NumberPressed("0")) }
+                CurrencyKeypadButton(symbol = "0", modifier = Modifier.weight(2f), shape = RoundedCornerShape(50.dp)) { onEvent(CurrencyEvent.NumberPressed("0", context)) }
                 CurrencyKeypadButton(symbol = ".", modifier = Modifier.weight(1f)) { onEvent(CurrencyEvent.DecimalPressed) }
             }
         }
@@ -164,6 +168,8 @@ private fun Keypad(onEvent: (CurrencyEvent) -> Unit) {
         }
     }
 }
+
+// --- All other composables below this line remain the same ---
 
 @Composable
 private fun CurrencyConversionDisplay(
@@ -201,7 +207,7 @@ private fun CurrencyConversionDisplay(
                     text = "${currency.code} - ${currency.name}",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.weight(1f),
-                    color = Color.Black // Explicitly set text color
+                    color = Color.Black
                 )
                 Icon(Icons.Default.ArrowDropDown, contentDescription = "Select Currency", tint = Color.Black)
             }
@@ -219,7 +225,7 @@ private fun CurrencyConversionDisplay(
                             fontSize = 48.sp,
                             fontWeight = FontWeight.Bold,
                             textAlign = TextAlign.End,
-                            color = Color.Black // Explicitly set text color
+                            color = Color.Black
                         ),
                         maxLines = 1
                     )
