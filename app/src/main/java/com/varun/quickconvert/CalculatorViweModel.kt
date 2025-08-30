@@ -11,11 +11,23 @@ data class CalculatorUiState(
     val result: String = "0",
     val isCalculationDone: Boolean = false
 )
-
+/**
+ * The ViewModel for the [CalculatorScreen].
+ *
+ * This class is responsible for holding the calculator's state ([CalculatorUiState]) and handling
+ * all business logic related to user input and mathematical calculations. It uses the mXparser
+ * library to safely evaluate the final mathematical expression.
+ */
 class CalculatorViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CalculatorUiState())
     val uiState = _uiState.asStateFlow()
 
+    /**
+     * The main entry point for all user actions from the UI.
+     * It receives a [CalculatorEvent] and calls the appropriate private function to handle it.
+     *
+     * @param event The sealed event representing the user's action (e.g., pressing a number or operator).
+     */
     fun onEvent(event: CalculatorEvent) {
         when (event) {
             is CalculatorEvent.Number -> enterNumber(event.number)
@@ -28,6 +40,10 @@ class CalculatorViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Appends a number to the current equation.
+     * If a calculation was just completed, it starts a new equation.
+     */
     private fun enterNumber(number: String) {
         _uiState.update { currentState ->
             val newEquation = if (currentState.isCalculationDone) {
@@ -41,6 +57,10 @@ class CalculatorViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Appends an operator to the current equation.
+     * Prevents multiple operators from being entered consecutively.
+     */
     private fun enterOperator(operator: String) {
         _uiState.update { currentState ->
             val newEquation = if (currentState.isCalculationDone) {
@@ -58,6 +78,10 @@ class CalculatorViewModel : ViewModel() {
         }
     }
 
+
+    /**
+     * Appends a decimal point, ensuring only one is present per number segment.
+     */
     private fun enterDecimal() {
         _uiState.update { currentState ->
             if (currentState.isCalculationDone) return@update currentState
@@ -106,12 +130,18 @@ class CalculatorViewModel : ViewModel() {
         }
     }
 
+    /**
+     * Resets the calculator state to its default values.
+     */
     private fun clear() {
         _uiState.update {
             CalculatorUiState(equation = "", result = "0", isCalculationDone = false)
         }
     }
 
+    /**
+     * Removes the last character from the equation.
+     */
     private fun backspace() {
         _uiState.update { currentState ->
             if (currentState.equation.isNotEmpty()) {
